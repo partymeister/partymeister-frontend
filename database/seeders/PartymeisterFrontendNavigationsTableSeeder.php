@@ -1,5 +1,7 @@
 <?php
 
+namespace Partymeister\Frontend\Database\Seeders;
+
 use Illuminate\Database\Seeder;
 
 /**

@@ -17,11 +17,10 @@
     "motor-cms/motor-cms": "0.10.*"
   },
   "autoload": {
-    "classmap": [
-      "database"
-    ],
     "psr-4": {
-      "Partymeister\\Frontend\\": "src"
+      "Partymeister\\Frontend\\": "src",
+      "Partymeister\\Frontend\\Database\\Factories\\": "database/factories/",
+      "Partymeister\\Frontend\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "extra": {
