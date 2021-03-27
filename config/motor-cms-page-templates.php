@@ -37,14 +37,6 @@ $templates = [
                     'width'     => 4,
                 ],
             ],
-            [
-                [
-                    'alias'     => 'content-full',
-                    'class'     => 'full-content',
-                    'container' => 'fourth-row-content',
-                    'width'     => 12
-                ],
-            ],
         ]
     ],
 ];
