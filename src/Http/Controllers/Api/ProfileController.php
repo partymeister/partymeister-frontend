@@ -19,6 +19,7 @@ use Partymeister\Competitions\Transformers\Entry\OldApiTransformer;
 use Partymeister\Competitions\Transformers\Entry\SimpleTransformer;
 use Partymeister\Core\Models\Visitor;
 use Partymeister\Core\Transformers\VisitorTransformer;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ProfileController
@@ -230,7 +231,8 @@ class ProfileController extends Controller
                 'status'  => 404,
                 'message' => 'Profile not found'
             ], 404);
-        }
+	}
+	Log::info('VisitorID', [$visitor->id]);
         $query = DB::table('entries')
             ->select('entries.id')
             ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
@@ -247,9 +249,14 @@ class ProfileController extends Controller
 
         $entries = Entry::whereIn('id', $entryIds)->get();
 
-        $fractal = new Manager();
-        $fractal->parseIncludes('vote:visitor_id('.$visitor->id.')');
-        $resource = new Collection($entries, new SimpleTransformer());
+	$fractal = new Manager();
+
+	Log::info('VisitorIdAgain', [$visitor->id]);
+
+
+
+        $fractal->parseIncludes('vote:visitorid('.$visitor->id.')');
+        $resource = new Collection($entries, new SimpleTransformer($visitor->id));
 
         return response()->json([
                 'status'  => 200,
