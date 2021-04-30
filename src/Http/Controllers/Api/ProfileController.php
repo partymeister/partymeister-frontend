@@ -6,28 +6,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use League\Fractal\Manager;
-use League\Fractal\Resource\Collection;
 use Motor\Backend\Http\Controllers\Controller;
+use Partymeister\Competitions\Http\Resources\EntryResource;
 use Partymeister\Competitions\Models\AccessKey;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
 use Partymeister\Competitions\Models\Vote;
 use Partymeister\Competitions\Models\VoteCategory;
-use Partymeister\Competitions\Transformers\Entry\OldApiTransformer;
-use Partymeister\Competitions\Transformers\Entry\SimpleTransformer;
+use Partymeister\Core\Http\Resources\VisitorResource;
 use Partymeister\Core\Models\Visitor;
-use Partymeister\Core\Transformers\VisitorTransformer;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class ProfileController
+ *
  * @package Partymeister\Frontend\Http\Controllers\Api
  */
 class ProfileController extends Controller
 {
-
     /**
      * @param Request $request
      * @return JsonResponse
@@ -44,30 +41,31 @@ class ProfileController extends Controller
         if (is_null($login) || is_null($password)) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Login or password not supplied'
+                'message' => 'Login or password not supplied',
             ], 403);
         }
 
-        if (! Auth::guard('visitor')->attempt([
-            'name'     => $login,
-            'password' => $password
-        ])) {
+        if (! Auth::guard('visitor')
+                  ->attempt([
+                      'name'     => $login,
+                      'password' => $password,
+                  ])) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Login unsuccessful'
+                'message' => 'Login unsuccessful',
             ], 403);
         }
 
-        $visitor = Visitor::where('name', $login)->first();
+        $visitor = Visitor::where('name', $login)
+                          ->first();
 
-        $data = fractal($visitor, new VisitorTransformer())->toArray();
+        $data = (new VisitorResource($visitor))->toArrayRecursive();
 
         return response()->json([
                 'status'  => 200,
-                'message' => 'Login successful'
+                'message' => 'Login successful',
             ] + $data, 200);
     }
-
 
     /**
      * @param Request $request
@@ -94,28 +92,31 @@ class ProfileController extends Controller
         if (is_null($login) || is_null($password) || is_null($access_key)) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Login, password or access key missing'
+                'message' => 'Login, password or access key missing',
             ], 403);
         }
 
         // Find visitor
-        $visitor = Visitor::where('name', $login)->first();
+        $visitor = Visitor::where('name', $login)
+                          ->first();
 
         // Check if user is already registered
         if (! is_null($visitor)) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Profile already registered'
+                'message' => 'Profile already registered',
             ], 403);
         }
 
         // Check if the access key is valid
-        $accessKey = AccessKey::where('access_key', $access_key)->where('visitor_id', null)->first();
+        $accessKey = AccessKey::where('access_key', $access_key)
+                              ->where('visitor_id', null)
+                              ->first();
 
         if (is_null($accessKey)) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Access key invalid'
+                'message' => 'Access key invalid',
             ], 403);
         }
 
@@ -133,14 +134,13 @@ class ProfileController extends Controller
         $accessKey->ip_address = $request->ip();
         $accessKey->save();
 
-        $data = fractal($visitor, new VisitorTransformer())->toArray();
+        $data = (new VisitorResource($visitor))->toArrayRecursive();
 
         return response()->json([
                 'status'  => 200,
-                'message' => 'Profile registered'
+                'message' => 'Profile registered',
             ] + $data, 200);
     }
-
 
     /**
      * @param $api_token
@@ -149,23 +149,24 @@ class ProfileController extends Controller
     public function entries($api_token)
     {
         // Check if token exists and load visitor
-        $visitor = Visitor::where('api_token', $api_token)->first();
+        $visitor = Visitor::where('api_token', $api_token)
+                          ->first();
 
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Profile not found'
+                'message' => 'Profile not found',
             ], 404);
         }
 
-        $data = fractal($visitor->entries, new OldApiTransformer())->toArray();
+        $data = EntryResource::collection($visitor->entries)
+                             ->toArrayRecursive();
 
         return response()->json([
                 'status'  => 200,
-                'message' => 'Entries loaded'
+                'message' => 'Entries loaded',
             ] + $data);
     }
-
 
     /**
      * @param $api_token
@@ -174,12 +175,13 @@ class ProfileController extends Controller
     public function vote_live($api_token)
     {
         // Check if token exists and load visitor
-        $visitor = Visitor::where('api_token', $api_token)->first();
+        $visitor = Visitor::where('api_token', $api_token)
+                          ->first();
 
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Profile not found'
+                'message' => 'Profile not found',
             ], 404);
         }
 
@@ -188,7 +190,7 @@ class ProfileController extends Controller
         if (is_null($live_voting)) {
             return response()->json([
                 'status'  => 204,
-                'message' => 'No entries found'
+                'message' => 'No entries found',
             ], 204);
         }
 
@@ -196,25 +198,21 @@ class ProfileController extends Controller
         if ($competition->voting_enabled == true && strtotime($competition->updated_at) <= time() - 300) { // allow live voting to stay open for 5 minutes
             return response()->json([
                 'status'  => 204,
-                'message' => 'No entries found'
+                'message' => 'No entries found',
             ], 204);
         }
         $entries = $live_voting->competition->entries()
-            ->where('status', '=', 1)
-            ->where('sort_position', '<=', $live_voting->sort_position)
-            ->orderBy('sort_position', 'DESC')
-            ->get();
+                                            ->where('status', '=', 1)
+                                            ->where('sort_position', '<=', $live_voting->sort_position)
+                                            ->orderBy('sort_position', 'DESC')
+                                            ->get();
 
-        $fractal = new Manager();
-        $fractal->parseIncludes('vote:visitor_id('.$visitor->id.')');
-        $resource = new Collection($entries, new SimpleTransformer());
 
         return response()->json([
                 'status'  => 200,
-                'message' => 'Livevotes loaded'
-            ] + $fractal->createData($resource)->toArray());
+                'message' => 'Livevotes loaded',
+            ] + EntryResource::collection($entries)->toArrayRecursive());
     }
-
 
     /**
      * @param Request $request
@@ -224,62 +222,58 @@ class ProfileController extends Controller
     public function vote_entries(Request $request, $api_token)
     {
         // Check if token exists and load visitor
-        $visitor = Visitor::where('api_token', $api_token)->first();
+        $visitor = Visitor::where('api_token', $api_token)
+                          ->first();
 
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Profile not found'
+                'message' => 'Profile not found',
             ], 404);
-	}
-	Log::info('VisitorID', [$visitor->id]);
+        }
+        Log::info('VisitorID', [$visitor->id]);
         $query = DB::table('entries')
-            ->select('entries.id')
-            ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
-            ->where('competitions.voting_enabled', true)
-            ->where('entries.status', 1);
+                   ->select('entries.id')
+                   ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
+                   ->where('competitions.voting_enabled', true)
+                   ->where('entries.status', 1);
 
         if (! is_null($request->get('competition_id'))) {
             $query->where('competition_id', $request->get('competition_id'));
         }
 
-        $query->orderBy('entries.competition_id', 'ASC')->orderBy('entries.sort_position', 'ASC');
+        $query->orderBy('entries.competition_id', 'ASC')
+              ->orderBy('entries.sort_position', 'ASC');
 
-        $entryIds = $query->get()->pluck('id');
+        $entryIds = $query->get()
+                          ->pluck('id');
 
-        $entries = Entry::whereIn('id', $entryIds)->get();
+        $entries = Entry::whereIn('id', $entryIds)
+                        ->get();
 
-	$fractal = new Manager();
-
-	Log::info('VisitorIdAgain', [$visitor->id]);
-
-
-
-        $fractal->parseIncludes('vote:visitorid('.$visitor->id.')');
-        $resource = new Collection($entries, new SimpleTransformer($visitor->id));
 
         return response()->json([
                 'status'  => 200,
-                'message' => 'Votes loaded'
-            ] + $fractal->createData($resource)->toArray());
+                'message' => 'Votes loaded',
+            ] + EntryResource::collection($entries));
     }
-
 
     /**
      * @param Request $request
      * @param         $api_token
-     * @param Entry   $entry
+     * @param Entry $entry
      * @return JsonResponse
      */
     public function vote_save(Request $request, $api_token, Entry $entry)
     {
         // Check if token exists and load visitor
-        $visitor = Visitor::where('api_token', $api_token)->first();
+        $visitor = Visitor::where('api_token', $api_token)
+                          ->first();
 
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Profile not found'
+                'message' => 'Profile not found',
             ], 404);
         }
 
@@ -292,7 +286,7 @@ class ProfileController extends Controller
         if (time() > strtotime(config('partymeister-competitions-voting.deadline'))) {
             return response()->json([
                 'status'  => 403,
-                'message' => 'Voting deadline over'
+                'message' => 'Voting deadline over',
             ], 403);
         }
 
@@ -301,7 +295,7 @@ class ProfileController extends Controller
         if (is_null($voteCategory)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Invalid vote category'
+                'message' => 'Invalid vote category',
             ], 404);
         }
 
@@ -310,19 +304,24 @@ class ProfileController extends Controller
         if (is_null($entry)) {
             return response()->json([
                 'status'  => 404,
-                'message' => 'Entry not found'
+                'message' => 'Entry not found',
             ], 404);
         }
 
         if ($request->get('favourite')) {
-            foreach ($visitor->votes()->where('special_vote', true)->get() as $vote) {
+            foreach ($visitor->votes()
+                             ->where('special_vote', true)
+                             ->get() as $vote) {
                 $vote->special_vote = false;
                 $vote->save();
             }
         }
 
         // Create new vote item if this one doesn't exist yet
-        $vote = $visitor->votes()->where('vote_category_id', $voteCategory->id)->where('entry_id', $entry->id)->first();
+        $vote = $visitor->votes()
+                        ->where('vote_category_id', $voteCategory->id)
+                        ->where('entry_id', $entry->id)
+                        ->first();
         if (is_null($vote)) {
             $vote = new Vote();
             $vote->visitor_id = $visitor->id;
@@ -337,6 +336,6 @@ class ProfileController extends Controller
 
         $vote->save();
 
-        return response()->json([ 'status' => 200, 'message' => 'Vote saved' ]);
+        return response()->json(['status' => 200, 'message' => 'Vote saved']);
     }
 }
