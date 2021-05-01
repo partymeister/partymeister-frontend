@@ -12,9 +12,9 @@ $templates = [
                     'alias'     => 'content-full',
                     'class'     => 'full-content',
                     'container' => 'first-row-content',
-                    'width'     => 12
+                    'width'     => 12,
                 ],
-            ]
+            ],
         ],
     ],
     'partymeister'            => [
@@ -37,7 +37,7 @@ $templates = [
                     'width'     => 4,
                 ],
             ],
-        ]
+        ],
     ],
 ];
 

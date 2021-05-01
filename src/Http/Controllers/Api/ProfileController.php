@@ -207,11 +207,11 @@ class ProfileController extends Controller
                                             ->orderBy('sort_position', 'DESC')
                                             ->get();
 
-
         return response()->json([
                 'status'  => 200,
                 'message' => 'Livevotes loaded',
-            ] + EntryResource::collection($entries)->toArrayRecursive());
+            ] + EntryResource::collection($entries)
+                             ->toArrayRecursive());
     }
 
     /**
@@ -250,7 +250,6 @@ class ProfileController extends Controller
 
         $entries = Entry::whereIn('id', $entryIds)
                         ->get();
-
 
         return response()->json([
                 'status'  => 200,

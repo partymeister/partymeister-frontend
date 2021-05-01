@@ -9,11 +9,11 @@ use Spatie\Image\Image;
 
 /**
  * Class PartymeisterFrontendCachePhotowallCommand
+ *
  * @package Partymeister\Frontend\Console\Commands
  */
 class PartymeisterFrontendCachePhotowallCommand extends Command
 {
-
     /**
      * The console command name.
      *
@@ -28,7 +28,6 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
      */
     protected $description = 'Make symlinks to all uploaded files';
 
-
     /**
      * Execute the console command.
      *
@@ -36,32 +35,34 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
      */
     public function handle()
     {
-        $basePath  = base_path('public/photowall');
+        $basePath = base_path('public/photowall');
         $cachePath = base_path('public/photowall/cache');
-        $source    = '';
+        $source = '';
         if (! is_dir($cachePath)) {
             mkdir($cachePath);
         }
-        if (! is_dir($cachePath . '/' . $source)) {
-            mkdir($cachePath . '/' . $source);
+        if (! is_dir($cachePath.'/'.$source)) {
+            mkdir($cachePath.'/'.$source);
         }
 
-        foreach (Storage::disk('photowall')->files($source) as $file) {
+        foreach (Storage::disk('photowall')
+                        ->files($source) as $file) {
             $split = explode('/', $file);
-            $name  = array_values(array_slice($split, -1))[0];
+            $name = array_values(array_slice($split, -1))[0];
             //$target = str_replace($source, '2018', $);
-            if (! file_exists($cachePath . '/' . $name)) {
+            if (! file_exists($cachePath.'/'.$name)) {
                 try {
-                    Image::load($basePath . '/' . $file)->width(1280)->save($cachePath . '/' . $name);
+                    Image::load($basePath.'/'.$file)
+                         ->width(1280)
+                         ->save($cachePath.'/'.$name);
 
-                    $this->info($file . ' converted');
+                    $this->info($file.' converted');
                 } catch (Exception $e) {
                     $this->error($e->getMessage());
                 }
             }
         }
     }
-
 
     /**
      * @param $directory
