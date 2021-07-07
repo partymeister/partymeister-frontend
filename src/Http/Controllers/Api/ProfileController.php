@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Motor\Backend\Http\Controllers\Controller;
 use Partymeister\Competitions\Http\Resources\EntryResource;
@@ -178,6 +179,8 @@ class ProfileController extends Controller
         $visitor = Visitor::where('api_token', $api_token)
                           ->first();
 
+        Session::put('visitor', $visitor->id);
+
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
@@ -208,10 +211,11 @@ class ProfileController extends Controller
                                             ->get();
 
         return response()->json([
-                'status'  => 200,
-                'message' => 'Livevotes loaded',
-            ] + EntryResource::collection($entries)
-                             ->toArrayRecursive());
+            'data'    => EntryResource::collection($entries->load('competition'))
+                                      ->toArrayRecursive(),
+            'status'  => 200,
+            'message' => 'Livevotes loaded',
+        ]);
     }
 
     /**
