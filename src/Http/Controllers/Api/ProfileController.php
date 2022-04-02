@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Motor\Backend\Http\Controllers\Controller;
-use Partymeister\Competitions\Http\Resources\EntryResource;
+use Partymeister\Competitions\Http\Resources\Profile\EntryResource;
 use Partymeister\Competitions\Models\AccessKey;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
 use Partymeister\Competitions\Models\Vote;
 use Partymeister\Competitions\Models\VoteCategory;
-use Partymeister\Core\Http\Resources\VisitorResource;
+use Partymeister\Core\Http\Resources\Profile\VisitorResource;
 use Partymeister\Core\Models\Visitor;
 
 /**
@@ -33,13 +33,13 @@ class ProfileController extends Controller
     public function login(Request $request)
     {
         // Get login from payload
-        $login = $request->get('login');
+        $name = $request->get('name');
 
         // Get password from payload
         $password = $request->get('password');
 
         // Return error if any data is missing
-        if (is_null($login) || is_null($password)) {
+        if (is_null($name) || is_null($password)) {
             return response()->json([
                 'status'  => 403,
                 'message' => 'Login or password not supplied',
@@ -48,7 +48,7 @@ class ProfileController extends Controller
 
         if (! Auth::guard('visitor')
                   ->attempt([
-                      'name'     => $login,
+                      'name'     => $name,
                       'password' => $password,
                   ])) {
             return response()->json([
@@ -57,15 +57,16 @@ class ProfileController extends Controller
             ], 403);
         }
 
-        $visitor = Visitor::where('name', $login)
+        $visitor = Visitor::where('name', $name)
                           ->first();
 
         $data = (new VisitorResource($visitor))->toArrayRecursive();
 
         return response()->json([
-                'status'  => 200,
-                'message' => 'Login successful',
-            ] + $data, 200);
+            'status'  => 200,
+            'message' => 'Login successful',
+            'data'    => $data,
+        ], 200);
     }
 
     /**
@@ -75,13 +76,13 @@ class ProfileController extends Controller
     public function register(Request $request)
     {
         // Get handle from payload
-        $login = $request->get('login');
+        $name = $request->get('name');
 
         // Get groups from payload
-        $groups = $request->get('groups');
+        $group = $request->get('group', '');
 
         // Get country from payload
-        $country = $request->get('country');
+        $country = $request->get('country_iso_3166_1');
 
         // Get password from payload
         $password = $request->get('password');
@@ -90,7 +91,7 @@ class ProfileController extends Controller
         $access_key = $request->get('access_key');
 
         // Return error if any data is missing
-        if (is_null($login) || is_null($password) || is_null($access_key)) {
+        if (is_null($name) || is_null($password) || is_null($access_key)) {
             return response()->json([
                 'status'  => 403,
                 'message' => 'Login, password or access key missing',
@@ -98,7 +99,7 @@ class ProfileController extends Controller
         }
 
         // Find visitor
-        $visitor = Visitor::where('name', $login)
+        $visitor = Visitor::where('name', $name)
                           ->first();
 
         // Check if user is already registered
@@ -123,9 +124,9 @@ class ProfileController extends Controller
 
         // Create user
         $visitor = new Visitor();
-        $visitor->name = $login;
+        $visitor->name = $name;
         $visitor->password = bcrypt($password);
-        $visitor->group = $groups;
+        $visitor->group = $group;
         $visitor->country_iso_3166_1 = $country;
         $visitor->api_token = Str::random(60);
         $visitor->save();
@@ -138,9 +139,10 @@ class ProfileController extends Controller
         $data = (new VisitorResource($visitor))->toArrayRecursive();
 
         return response()->json([
-                'status'  => 200,
-                'message' => 'Profile registered',
-            ] + $data, 200);
+            'status'  => 200,
+            'message' => 'Registration successful',
+            'data'    => $data,
+        ], 200);
     }
 
     /**
@@ -164,9 +166,10 @@ class ProfileController extends Controller
                              ->toArrayRecursive();
 
         return response()->json([
-                'status'  => 200,
-                'message' => 'Entries loaded',
-            ] + $data);
+            'status'  => 200,
+            'message' => 'Entries loaded',
+            'data'    => $data,
+        ]);
     }
 
     /**
@@ -256,9 +259,10 @@ class ProfileController extends Controller
                         ->get();
 
         return response()->json([
-                'status'  => 200,
-                'message' => 'Votes loaded',
-            ] + EntryResource::collection($entries));
+            'status'  => 200,
+            'message' => 'Votes loaded',
+            'data'    => EntryResource::collection($entries),
+        ]);
     }
 
     /**
