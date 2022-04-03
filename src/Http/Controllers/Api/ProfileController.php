@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Motor\Backend\Http\Controllers\Controller;
 use Partymeister\Competitions\Http\Resources\Profile\EntryResource;
+use Partymeister\Competitions\Http\Resources\Vote\EntryResource as VoteEntryResource;
 use Partymeister\Competitions\Models\AccessKey;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
@@ -214,7 +215,7 @@ class ProfileController extends Controller
                                             ->get();
 
         return response()->json([
-            'data'    => EntryResource::collection($entries->load('competition'))
+            'data'    => VoteEntryResource::collection($entries->load('competition'))
                                       ->toArrayRecursive(),
             'status'  => 200,
             'message' => 'Livevotes loaded',
