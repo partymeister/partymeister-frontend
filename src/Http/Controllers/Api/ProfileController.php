@@ -216,7 +216,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'data'    => VoteEntryResource::collection($entries->load('competition'))
-                                      ->toArrayRecursive(),
+                                          ->toArrayRecursive(),
             'status'  => 200,
             'message' => 'Livevotes loaded',
         ]);
@@ -232,6 +232,8 @@ class ProfileController extends Controller
         // Check if token exists and load visitor
         $visitor = Visitor::where('api_token', $api_token)
                           ->first();
+
+        Session::put('visitor', $visitor->id);
 
         if (is_null($visitor)) {
             return response()->json([
@@ -257,12 +259,14 @@ class ProfileController extends Controller
                           ->pluck('id');
 
         $entries = Entry::whereIn('id', $entryIds)
+                        ->orderBy('competition_id', 'ASC')
+                        ->orderBy('sort_position', 'ASC')
                         ->get();
 
         return response()->json([
             'status'  => 200,
             'message' => 'Votes loaded',
-            'data'    => EntryResource::collection($entries),
+            'data'    => VoteEntryResource::collection($entries),
         ]);
     }
 
