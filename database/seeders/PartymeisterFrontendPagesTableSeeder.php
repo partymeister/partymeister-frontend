@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
  */
 class PartymeisterFrontendPagesTableSeeder extends Seeder
 {
-
     /**
      * Run the database seeds.
      *

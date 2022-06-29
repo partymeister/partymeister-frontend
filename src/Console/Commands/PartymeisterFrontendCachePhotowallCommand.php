@@ -9,8 +9,6 @@ use Spatie\Image\Image;
 
 /**
  * Class PartymeisterFrontendCachePhotowallCommand
- *
- * @package Partymeister\Frontend\Console\Commands
  */
 class PartymeisterFrontendCachePhotowallCommand extends Command
 {

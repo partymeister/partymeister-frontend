@@ -22,13 +22,11 @@ use Partymeister\Core\Models\Visitor;
 
 /**
  * Class ProfileController
- *
- * @package Partymeister\Frontend\Http\Controllers\Api
  */
 class ProfileController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function login(Request $request)
@@ -71,7 +69,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function register(Request $request)
@@ -223,8 +221,8 @@ class ProfileController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param         $api_token
+     * @param  Request  $request
+     * @param    $api_token
      * @return JsonResponse
      */
     public function vote_entries(Request $request, $api_token)
@@ -271,9 +269,9 @@ class ProfileController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param         $api_token
-     * @param Entry $entry
+     * @param  Request  $request
+     * @param    $api_token
+     * @param  Entry  $entry
      * @return JsonResponse
      */
     public function vote_save(Request $request, $api_token, Entry $entry)

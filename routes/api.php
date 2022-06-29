@@ -1,4 +1,5 @@
 <?php
+
 Route::group([
     'middleware' => ['api', 'bindings'],
     'namespace'  => 'Partymeister\Frontend\Http\Controllers\Api',

@@ -7,8 +7,6 @@ use Partymeister\Frontend\Console\Commands\PartymeisterFrontendCachePhotowallCom
 
 /**
  * Class PartymeisterServiceProvider
- *
- * @package Partymeister\Frontend\Providers
  */
 class PartymeisterServiceProvider extends ServiceProvider
 {
