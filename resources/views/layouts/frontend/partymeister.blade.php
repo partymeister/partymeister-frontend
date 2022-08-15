@@ -8,6 +8,9 @@
 
     <link href="{{ mix('/css/motor-frontend.css') }}" rel="stylesheet" type="text/css"/>
     @yield('view-styles')
+    <style lang="text/css">
+        {{ config('partymeister-frontend.css') }}
+    </style>
 </head>
 <body>
 @include('motor-cms::layouts.frontend.partials.navigation')
