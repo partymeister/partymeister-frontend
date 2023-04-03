@@ -7,6 +7,8 @@
     <title>{{$version->name}} | {{config('motor-cms-frontend.name')}}</title>
 
     <link href="{{ mix('/css/motor-frontend.css') }}" rel="stylesheet" type="text/css"/>
+    <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
+    <link rel=icon href="/favicon.png" type="image/x-icon">
     @yield('view-styles')
     <style lang="text/css">
         {{ config('partymeister-frontend.css') }}
