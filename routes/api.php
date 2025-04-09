@@ -8,6 +8,7 @@ Route::group([
 ], function () {
     Route::post('profile/register', 'ProfileController@register');
     Route::post('profile/login', 'ProfileController@login');
+    Route::delete('profile/{api_token}/destroy', 'ProfileController@destroy');
     Route::get('profile/{api_token}/entries', 'ProfileController@entries');
     Route::get('profile/{api_token}/votes/live', 'ProfileController@vote_live');
     Route::get('profile/{api_token}/votes/entries', 'ProfileController@vote_entries');

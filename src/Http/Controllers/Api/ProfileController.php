@@ -25,7 +25,30 @@ use Partymeister\Core\Models\Visitor;
  */
 class ProfileController extends Controller
 {
-    /**
+
+    public function destroy($api_token)
+    {
+        // Check if token exists and load visitor
+        $visitor = Visitor::where('api_token', $api_token)
+                          ->first();
+
+        if (is_null($visitor)) {
+            return response()->json([
+                'status'  => 404,
+                'message' => 'Profile not found',
+            ], 404);
+        }
+
+        // Delete visitor
+        $visitor->delete();
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Profile deleted',
+        ], 200);
+    }
+
+    /*
      * @param  Request  $request
      * @return JsonResponse
      */
