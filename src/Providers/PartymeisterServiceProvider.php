@@ -35,9 +35,7 @@ class PartymeisterServiceProvider extends ServiceProvider
     /**
      * Set configuration files for publishing
      */
-    public function config()
-    {
-    }
+    public function config() {}
 
     /**
      * Set routes
@@ -53,9 +51,7 @@ class PartymeisterServiceProvider extends ServiceProvider
     /**
      * Add route model bindings
      */
-    public function routeModelBindings()
-    {
-    }
+    public function routeModelBindings() {}
 
     /**
      * Set translation path
@@ -84,16 +80,12 @@ class PartymeisterServiceProvider extends ServiceProvider
     /**
      * Merge backend navigation items from configuration file
      */
-    public function navigationItems()
-    {
-    }
+    public function navigationItems() {}
 
     /**
      * Merge permission config file
      */
-    public function permissions()
-    {
-    }
+    public function permissions() {}
 
     /**
      * Register artisan commands
@@ -122,8 +114,8 @@ class PartymeisterServiceProvider extends ServiceProvider
     {
         $assets = [
             __DIR__.'/../../resources/assets/sass' => resource_path('assets/sass'),
-            __DIR__.'/../../resources/assets/npm'  => resource_path('assets/npm'),
-            __DIR__.'/../../resources/assets/js'   => resource_path('assets/js'),
+            __DIR__.'/../../resources/assets/npm' => resource_path('assets/npm'),
+            __DIR__.'/../../resources/assets/js' => resource_path('assets/js'),
         ];
 
         $this->publishes($assets, 'partymeister-frontend-install-resources');

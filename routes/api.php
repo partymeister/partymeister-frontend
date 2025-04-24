@@ -2,9 +2,9 @@
 
 Route::group([
     'middleware' => ['api', 'bindings'],
-    'namespace'  => 'Partymeister\Frontend\Http\Controllers\Api',
-    'prefix'     => 'api',
-    'as'         => 'api.',
+    'namespace' => 'Partymeister\Frontend\Http\Controllers\Api',
+    'prefix' => 'api',
+    'as' => 'api.',
 ], function () {
     Route::post('profile/register', 'ProfileController@register');
     Route::post('profile/login', 'ProfileController@login');

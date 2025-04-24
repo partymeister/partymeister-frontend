@@ -44,15 +44,15 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
         }
 
         foreach (Storage::disk('photowall')
-                        ->files($source) as $file) {
+            ->files($source) as $file) {
             $split = explode('/', $file);
             $name = array_values(array_slice($split, -1))[0];
-            //$target = str_replace($source, '2018', $);
+            // $target = str_replace($source, '2018', $);
             if (! file_exists($cachePath.'/'.$name)) {
                 try {
                     Image::load($basePath.'/'.$file)
-                         ->width(1280)
-                         ->save($cachePath.'/'.$name);
+                        ->width(1280)
+                        ->save($cachePath.'/'.$name);
 
                     $this->info($file.' converted');
                 } catch (Exception $e) {
@@ -62,9 +62,6 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
         }
     }
 
-    /**
-     * @param $directory
-     */
     protected function mkdir($directory)
     {
         if (! is_dir($directory)) {

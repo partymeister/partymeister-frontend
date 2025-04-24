@@ -12,6 +12,7 @@
     }
   ],
   "require": {
+    "php": "^8.4",
     "partymeister/core": "^1.6",
     "partymeister/slides": "^1.6",
     "motor-cms/motor-cms": "^1.6"
