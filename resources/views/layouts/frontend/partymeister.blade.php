@@ -6,7 +6,7 @@
 
     <title>{{$version->name}} | {{config('motor-cms-frontend.name')}}</title>
 
-    <link href="{{ mix('/css/motor-frontend.css') }}" rel="stylesheet" type="text/css"/>
+    @vite(['resources/assets/sass/partymeister-frontend.package-development.scss'])
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
     <link rel=icon href="/favicon.png" type="image/x-icon">
     @yield('view-styles')
@@ -21,9 +21,9 @@
 </div>
 <div class="columns shrink footer text-center" style="position: fixed; bottom: 0; width: 100%;">
 </div>
-<script src="{{mix('js/partymeister-frontend.js')}}"></script>
+@vite(['resources/assets/js/frontend.js'])
 @yield('view-scripts')
-<script>
+<script type="module">
     $(document).foundation();
 </script>
 </body>

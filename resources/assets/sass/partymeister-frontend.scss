@@ -2,9 +2,9 @@
 @import "foundation-settings";
 
 // Foundation
-@import "~foundation-sites/scss/foundation";
+@import "foundation-sites/scss/foundation";
 
-@import '~motor-cms/resources/assets/sass/frontend.scss';
+@import 'motor-cms/resources/assets/sass/frontend.scss';
 
 // Include Everything (True) for the Flex Grid :);
 @include foundation-everything(true);
@@ -14,10 +14,10 @@
   margin: 0 auto;
 }
 
-@import "~@fancyapps/fancybox/dist/jquery.fancybox";
-@import "~toastr/toastr";
+@import "@fancyapps/fancybox/dist/jquery.fancybox";
+@import "toastr/toastr";
 @import "./modules/partymeister-rating";
-@import "~flag-icon-css/sass/flag-icon";
+@import "flag-icon-css/sass/flag-icon";
 
 
 // Partymeister Core

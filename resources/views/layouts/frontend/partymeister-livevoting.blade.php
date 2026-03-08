@@ -7,7 +7,7 @@
 
     <title>Live Voting</title>
 
-    <link rel="stylesheet" href="{{mix('css/partymeister-livevoting.css')}}">
+    @vite(['packages/partymeister-frontend/resources/assets/sass/partymeister-livevoting.scss'])
     @yield('view_styles')
     <style type="text/css">
     </style>
