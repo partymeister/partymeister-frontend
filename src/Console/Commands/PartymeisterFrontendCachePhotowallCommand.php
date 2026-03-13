@@ -37,7 +37,7 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
         $cachePath = base_path('public/photowall/cache');
         $source = '';
         if (! is_dir($cachePath)) {
-            mkdir($cachePath);
+            mkdir($cachePath, 0755, true);
         }
         if (! is_dir($cachePath.'/'.$source)) {
             mkdir($cachePath.'/'.$source);
