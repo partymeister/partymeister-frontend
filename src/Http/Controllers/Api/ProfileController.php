@@ -54,6 +54,13 @@ class ProfileController extends Controller
      */
     public function login(Request $request)
     {
+        if (! config('partymeister-core.visitor_login_enabled', false)) {
+            return response()->json([
+                'status'  => 503,
+                'message' => 'Login is currently disabled',
+            ], 503);
+        }
+
         // Get login from payload
         $name = $request->get('name');
 
@@ -97,6 +104,13 @@ class ProfileController extends Controller
      */
     public function register(Request $request)
     {
+        if (! config('partymeister-core.visitor_login_enabled', false)) {
+            return response()->json([
+                'status'  => 503,
+                'message' => 'Registration is currently disabled',
+            ], 503);
+        }
+
         // Get handle from payload
         $name = $request->get('name');
 
