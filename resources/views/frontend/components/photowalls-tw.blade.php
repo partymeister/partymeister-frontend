@@ -7,7 +7,7 @@
 @endsection
 
 
-<h4>Photowall</h4>
+<h3>Photowall</h3>
 
 @include('partymeister-frontend::frontend.components.photowalls-pagination-tw')
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

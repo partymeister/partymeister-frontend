@@ -8,31 +8,32 @@
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
     <link rel="icon" href="/favicon.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600,700|quattrocento-sans:400,700" rel="stylesheet" />
     @yield('view-styles')
 </head>
-<body class="min-h-screen bg-body font-[Inter] text-text" x-data="{ mobileNav: false }">
+<body class="min-h-screen bg-body font-['Source_Sans_3'] text-base text-text" x-data="{ mobileNav: false }">
 
     {{-- Navbar --}}
     <nav class="sticky top-0 z-50 bg-surface border-b border-border">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-14">
-                {{-- Site title --}}
-                <a href="/" class="text-heading font-bold text-lg shrink-0 hover:text-accent transition-colors"
+                {{-- Site title with logo --}}
+                <a href="/" class="flex items-center gap-2 text-heading font-bold text-lg shrink-0 hover:text-accent transition-colors"
                    style="{{config('motor-cms-frontend.style')}}">
+                    <img src="/images/logo-small.png" alt="" class="h-8 w-8">
                     {!! config('motor-cms-frontend.name') !!}
                 </a>
 
                 {{-- Desktop nav --}}
-                <div class="hidden lg:flex items-center gap-1">
+                <div class="hidden lg:flex items-center gap-1.5">
                     @foreach($navigationItems as $item)
                         @if ($item->is_visible && $item->is_active)
                             <a href="{{ route('frontend.pages.index', ['slug' => $item->full_slug])}}"
-                               class="px-3 py-2 rounded-md text-sm transition-colors
+                               class="px-3 py-2 rounded-md transition-colors
                                       @if($activeNavigationSlugs[0] == $item->full_slug)
-                                          text-heading font-medium
+                                          text-heading font-semibold
                                       @else
-                                          text-text hover:text-heading
+                                          text-text font-medium hover:text-heading
                                       @endif">
                                 {{$item->name}}
                             </a>
@@ -75,7 +76,8 @@
 
             {{-- Drawer header --}}
             <div class="flex items-center justify-between px-4 h-14 border-b border-border">
-                <span class="text-heading font-bold" style="{{config('motor-cms-frontend.style')}}">
+                <span class="flex items-center gap-2 text-heading font-bold" style="{{config('motor-cms-frontend.style')}}">
+                    <img src="/images/logo-small.png" alt="" class="h-7 w-7">
                     {!! config('motor-cms-frontend.name') !!}
                 </span>
                 <button @click="mobileNav = false" class="p-2 rounded-md text-text hover:text-heading transition-colors">
@@ -102,26 +104,6 @@
                 @endforeach
             </nav>
         </div>
-    </div>
-
-    {{-- Breadcrumbs --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <nav class="flex text-sm text-text-muted" aria-label="Breadcrumb">
-            <ol class="flex items-center gap-1">
-                @foreach($activeNavigationItem->ancestors as $item)
-                    @if (!$loop->first)
-                        <li class="flex items-center gap-1">
-                            <a href="{{ route('frontend.pages.index', ['slug' => $item->full_slug])}}"
-                               class="hover:text-heading transition-colors">{{$item->name}}</a>
-                            <svg class="h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </li>
-                    @endif
-                @endforeach
-                <li class="text-text">{{$activeNavigationItem->name}}</li>
-            </ol>
-        </nav>
     </div>
 
     {{-- Page content --}}
