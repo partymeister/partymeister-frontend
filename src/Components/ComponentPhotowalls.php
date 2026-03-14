@@ -54,7 +54,7 @@ class ComponentPhotowalls
      */
     public function index(Request $request)
     {
-        $this->photos = $this->scanDir(base_path('public/photowall/cache'));
+        $this->photos = $this->scanDir(base_path('public/photowall/thumb'));
 
         if (! $this->photos) {
             return false;

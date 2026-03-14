@@ -34,29 +34,46 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
     public function handle()
     {
         $basePath = base_path('public/photowall');
-        $cachePath = base_path('public/photowall/cache');
-        $source = '';
-        if (! is_dir($cachePath)) {
-            mkdir($cachePath, 0755, true);
+        $thumbPath = base_path('public/photowall/thumb');
+        $fullPath = base_path('public/photowall/full');
+
+        if (! is_dir($thumbPath)) {
+            mkdir($thumbPath, 0755, true);
         }
-        if (! is_dir($cachePath.'/'.$source)) {
-            mkdir($cachePath.'/'.$source);
+        if (! is_dir($fullPath)) {
+            mkdir($fullPath, 0755, true);
         }
 
-        foreach (Storage::disk('photowall')
-                        ->files($source) as $file) {
+        foreach (Storage::disk('photowall')->files('') as $file) {
             $split = explode('/', $file);
             $name = array_values(array_slice($split, -1))[0];
-            //$target = str_replace($source, '2018', $);
-            if (! file_exists($cachePath.'/'.$name)) {
-                try {
-                    Image::load($basePath.'/'.$file)
-                         ->width(1280)
-                         ->save($cachePath.'/'.$name);
+            $sourcePath = $basePath.'/'.$file;
 
-                    $this->info($file.' converted');
+            // Generate thumbnail (400px, 75% quality) for grid display
+            if (! file_exists($thumbPath.'/'.$name)) {
+                try {
+                    Image::load($sourcePath)
+                         ->width(400)
+                         ->quality(75)
+                         ->save($thumbPath.'/'.$name);
+
+                    $this->info($file.' thumb created');
                 } catch (Exception $e) {
-                    $this->error($e->getMessage());
+                    $this->error('Thumb: '.$e->getMessage());
+                }
+            }
+
+            // Generate full size (1920px, 85% quality) for lightbox
+            if (! file_exists($fullPath.'/'.$name)) {
+                try {
+                    Image::load($sourcePath)
+                         ->width(1920)
+                         ->quality(85)
+                         ->save($fullPath.'/'.$name);
+
+                    $this->info($file.' full created');
+                } catch (Exception $e) {
+                    $this->error('Full: '.$e->getMessage());
                 }
             }
         }
