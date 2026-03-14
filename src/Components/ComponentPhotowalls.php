@@ -57,7 +57,10 @@ class ComponentPhotowalls
         $this->photos = $this->scanDir(base_path('public/photowall/thumb'));
 
         if (! $this->photos) {
-            return false;
+            $this->photos = [];
+            $this->pages = 0;
+            $this->currentPage = 1;
+            return $this->render();
         }
 
         $limit = 90;
