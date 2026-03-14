@@ -6,7 +6,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Motor\Backend\Http\Controllers\Controller;
@@ -276,7 +275,6 @@ class ProfileController extends Controller
                 'message' => 'Profile not found',
             ], 404);
         }
-        Log::info('VisitorID', [$visitor->id]);
         $query = DB::table('entries')
                    ->select('entries.id')
                    ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
