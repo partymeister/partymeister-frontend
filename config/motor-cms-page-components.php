@@ -10,7 +10,7 @@ return [
         'photowalls' => [
             'name'            => 'Photowall',
             'description'     => 'Show Photowall component',
-            'view'            => 'partymeister-frontend::frontend.components.photowalls',
+            'view'            => 'partymeister-frontend::frontend.components.photowalls-tw',
             'component_class' => 'Partymeister\Frontend\Components\ComponentPhotowalls',
             'compatibility'   => [
 
