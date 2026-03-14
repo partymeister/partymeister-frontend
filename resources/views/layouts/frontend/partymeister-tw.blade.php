@@ -48,7 +48,7 @@
                 </div>
 
                 {{-- Mobile hamburger --}}
-                <button @click="mobileNav = true" class="lg:hidden p-2 rounded-md text-text hover:text-heading hover:bg-surface-raised transition-colors">
+                <button @click="mobileNav = true" x-bind:aria-expanded="mobileNav" aria-label="Open menu" class="lg:hidden p-2 rounded-md text-text hover:text-heading hover:bg-surface-raised transition-colors">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
                     </svg>
@@ -73,7 +73,7 @@
                     <img src="/images/logo-small.png" alt="" class="h-8 w-8">
                     {!! config('motor-cms-frontend.name') !!}
                 </span>
-                <button @click="mobileNav = false" class="p-2 rounded-md text-text hover:text-heading transition-colors">
+                <button @click="mobileNav = false" aria-label="Close menu" class="p-2 rounded-md text-text hover:text-heading transition-colors">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>

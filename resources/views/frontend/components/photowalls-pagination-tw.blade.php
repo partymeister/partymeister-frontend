@@ -7,7 +7,7 @@
         @endif
         @for ($i=1; $i<=$pages; $i++)
             @if ($currentPage == $i)
-                <button class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium border -ml-px first:ml-0 first:rounded-l-lg last:rounded-r-lg bg-accent text-body border-accent">{{$i}}</button>
+                <button class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium border -ml-px first:ml-0 first:rounded-l-lg last:rounded-r-lg bg-accent text-body border-accent cursor-default">{{$i}}</button>
             @else
                 <a href="{{\Request::url()}}?page={{$i}}" aria-label="Page {{$i}}" class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium border border-border bg-surface text-text hover:bg-surface-raised transition-colors -ml-px first:ml-0 first:rounded-l-lg last:rounded-r-lg">{{$i}}</a>
             @endif
