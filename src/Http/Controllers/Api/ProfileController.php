@@ -103,7 +103,7 @@ class ProfileController extends Controller
      */
     public function register(Request $request)
     {
-        if (! config('partymeister-core.visitor_login_enabled', false)) {
+        if (! config('partymeister-core.visitor_registration_enabled', false)) {
             return response()->json([
                 'status'  => 503,
                 'message' => 'Registration is currently disabled',
