@@ -39,6 +39,12 @@
                             </a>
                         @endif
                     @endforeach
+                    @if(isset($visitor) && !is_null($visitor) && config('partymeister-competitions-voting.party_has_voting'))
+                        <a href="{{ route('frontend.pages.index', ['slug' => 'voting'])}}"
+                           class="px-3 py-2 rounded-md transition-colors text-accent font-medium hover:text-accent-hover">
+                            Vote
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Mobile hamburger --}}
@@ -51,57 +57,50 @@
         </div>
     </nav>
 
-    {{-- Mobile slide-out drawer --}}
-    <div x-show="mobileNav" x-cloak class="fixed inset-0 z-[60] lg:hidden">
-        {{-- Overlay --}}
-        <div x-show="mobileNav"
-             x-transition:enter="transition-opacity ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             @click="mobileNav = false"
-             class="absolute inset-0 bg-black/60"></div>
+    {{-- Mobile full-screen nav overlay --}}
+    <div x-show="mobileNav" x-cloak class="fixed inset-0 z-[60] lg:hidden"
+         x-transition:enter="transition-opacity ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
 
-        {{-- Drawer panel --}}
-        <div x-show="mobileNav"
-             x-transition:enter="transition-transform ease-out duration-300"
-             x-transition:enter-start="-translate-x-full"
-             x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition-transform ease-in duration-200"
-             x-transition:leave-start="translate-x-0"
-             x-transition:leave-end="-translate-x-full"
-             class="absolute inset-y-0 left-0 w-72 bg-surface shadow-xl">
-
-            {{-- Drawer header --}}
-            <div class="flex items-center justify-between px-4 h-14 border-b border-border">
-                <span class="flex items-center gap-2 text-heading font-bold" style="{{config('motor-cms-frontend.style')}}">
-                    <img src="/images/logo-small.png" alt="" class="h-7 w-7">
+        <div class="absolute inset-0 bg-body/95 backdrop-blur-sm flex flex-col">
+            {{-- Close button --}}
+            <div class="flex items-center justify-between px-6 h-14">
+                <span class="flex items-center gap-2 text-heading font-bold text-lg" style="{{config('motor-cms-frontend.style')}}">
+                    <img src="/images/logo-small.png" alt="" class="h-8 w-8">
                     {!! config('motor-cms-frontend.name') !!}
                 </span>
                 <button @click="mobileNav = false" class="p-2 rounded-md text-text hover:text-heading transition-colors">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            {{-- Drawer nav links --}}
-            <nav class="px-2 py-4 space-y-1">
+            {{-- Centered nav links --}}
+            <nav class="flex-1 flex flex-col items-center justify-center gap-2 -mt-14">
                 @foreach($navigationItems as $item)
                     @if ($item->is_visible && $item->is_active)
                         <a href="{{ route('frontend.pages.index', ['slug' => $item->full_slug])}}"
-                           class="block px-3 py-2 rounded-md text-sm transition-colors
+                           class="px-6 py-3 rounded-lg text-2xl transition-colors
                                   @if($activeNavigationSlugs[0] == $item->full_slug)
-                                      text-heading bg-surface-raised font-medium
+                                      text-heading font-semibold
                                   @else
-                                      text-text hover:text-heading hover:bg-surface-raised
+                                      text-text font-normal hover:text-heading
                                   @endif">
                             {{$item->name}}
                         </a>
                     @endif
                 @endforeach
+                @if(isset($visitor) && !is_null($visitor) && config('partymeister-competitions-voting.party_has_voting'))
+                    <a href="{{ route('frontend.pages.index', ['slug' => 'voting'])}}"
+                       class="px-6 py-3 rounded-lg text-2xl transition-colors text-accent font-normal hover:text-accent-hover">
+                        Vote
+                    </a>
+                @endif
             </nav>
         </div>
     </div>
