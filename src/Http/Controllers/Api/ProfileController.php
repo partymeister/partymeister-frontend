@@ -217,14 +217,14 @@ class ProfileController extends Controller
         $visitor = Visitor::where('api_token', $api_token)
                           ->first();
 
-        Session::put('visitor', $visitor->id);
-
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
                 'message' => 'Profile not found',
             ], 404);
         }
+
+        Session::put('visitor', $visitor->id);
 
         $live_voting = LiveVote::first();
 
@@ -267,14 +267,15 @@ class ProfileController extends Controller
         $visitor = Visitor::where('api_token', $api_token)
                           ->first();
 
-        Session::put('visitor', $visitor->id);
-
         if (is_null($visitor)) {
             return response()->json([
                 'status'  => 404,
                 'message' => 'Profile not found',
             ], 404);
         }
+
+        Session::put('visitor', $visitor->id);
+
         $query = DB::table('entries')
                    ->select('entries.id')
                    ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
