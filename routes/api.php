@@ -5,6 +5,7 @@ use Partymeister\Frontend\Http\Controllers\Api\ProfileController;
 use Partymeister\Frontend\Http\Controllers\Api\V2\ProfileAuthController;
 use Partymeister\Frontend\Http\Controllers\Api\V2\ProfileEntriesController;
 use Partymeister\Frontend\Http\Controllers\Api\V2\ProfileVotesController;
+use Partymeister\Frontend\Http\Middleware\EnsureVisitorAuthenticated;
 
 // Legacy v1: token-in-URL routes (mobile apps — will be deprecated)
 Route::group([
@@ -25,7 +26,7 @@ Route::group([
 
 // V2: Sanctum-authenticated routes (SPA cookies for web, Bearer tokens for apps)
 Route::group([
-    'middleware' => [EnsureFrontendRequestsAreStateful::class, 'auth:sanctum'],
+    'middleware' => [EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', EnsureVisitorAuthenticated::class],
     'prefix'     => 'api/v2',
     'as'         => 'api.v2.',
 ], function () {
