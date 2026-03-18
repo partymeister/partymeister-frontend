@@ -4,6 +4,7 @@ namespace Partymeister\Frontend\Http\Controllers\Api\V2;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Motor\Backend\Http\Controllers\Controller;
 use Partymeister\Competitions\Http\Resources\Vote\EntryResource as VoteEntryResource;
@@ -16,23 +17,21 @@ class ProfileVotesController extends Controller
     /**
      * Get live voting entries for the authenticated visitor.
      */
-    public function live(Request $request): JsonResponse
+    public function live(Request $request): JsonResponse|Response
     {
-        $visitor = $request->user('visitor');
-
         $liveVote = LiveVote::first();
         if (is_null($liveVote)) {
-            return response()->json([], 204);
+            return response()->noContent();
         }
 
         $competition = $liveVote->competition;
         if (is_null($competition)) {
-            return response()->json([], 204);
+            return response()->noContent();
         }
 
         // Allow live voting to stay open for 5 minutes after competition update
         if ($competition->voting_enabled && strtotime($competition->updated_at) <= time() - 300) {
-            return response()->json([], 204);
+            return response()->noContent();
         }
 
         $entries = $liveVote->competition->entries()
@@ -54,8 +53,6 @@ class ProfileVotesController extends Controller
      */
     public function entries(Request $request): JsonResponse
     {
-        $visitor = $request->user('visitor');
-
         $query = DB::table('entries')
             ->select('entries.id')
             ->join('competitions', 'entries.competition_id', '=', 'competitions.id')
