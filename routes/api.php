@@ -26,7 +26,7 @@ Route::group([
 
 // V2: Sanctum-authenticated routes (SPA cookies for web, Bearer tokens for apps)
 Route::group([
-    'middleware' => [EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', EnsureVisitorAuthenticated::class],
+    'middleware' => [EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', 'bindings', EnsureVisitorAuthenticated::class],
     'prefix'     => 'api/v2',
     'as'         => 'api.v2.',
 ], function () {
