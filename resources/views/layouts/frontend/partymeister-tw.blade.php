@@ -68,7 +68,7 @@
 
         <div class="absolute inset-0 bg-body/95 backdrop-blur-sm flex flex-col">
             {{-- Close button --}}
-            <div class="flex items-center justify-between px-6 h-14">
+            <div class="relative z-10 flex items-center justify-between px-6 h-14">
                 <span class="flex items-center gap-2 text-heading font-bold text-lg" style="{{config('motor-cms-frontend.style')}}">
                     <img src="/images/logo-small.png" alt="" class="h-8 w-8">
                     {!! config('motor-cms-frontend.name') !!}
