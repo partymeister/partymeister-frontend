@@ -95,7 +95,7 @@ class ProfileVotesController extends Controller
         $result = VoteService::submitVote(
             visitor: $visitor,
             entryId: $entry->id,
-            voteCategoryId: (int) $request->get('vote_category_id'),
+            voteCategoryId: $request->get('vote_category_id'),
             points: (int) $request->get('points', 0),
             comment: $request->get('comment', ''),
             specialVote: $request->has('special_vote') ? (bool) $request->get('special_vote') : null,
