@@ -60,7 +60,7 @@ class ProfileVotesController extends ApiController
         }
 
         $query->orderBy('entries.competition_id', 'ASC')
-              ->orderBy('entries.sort_position', 'ASC');
+            ->orderBy('entries.sort_position', 'ASC');
 
         $entryIds = $query->get()->pluck('id');
 
@@ -96,6 +96,7 @@ class ProfileVotesController extends ApiController
 
         if (! $result['success']) {
             $status = $result['status'] ?? 400;
+
             return $this->errorResponse('VOTE_FAILED', $result['message'], $status);
         }
 

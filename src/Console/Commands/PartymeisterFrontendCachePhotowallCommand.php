@@ -53,9 +53,9 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
             if (! file_exists($thumbPath.'/'.$name)) {
                 try {
                     Image::load($sourcePath)
-                         ->width(400)
-                         ->quality(75)
-                         ->save($thumbPath.'/'.$name);
+                        ->width(400)
+                        ->quality(75)
+                        ->save($thumbPath.'/'.$name);
 
                     $this->info($file.' thumb created');
                 } catch (Exception $e) {
@@ -67,9 +67,9 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
             if (! file_exists($fullPath.'/'.$name)) {
                 try {
                     Image::load($sourcePath)
-                         ->width(1920)
-                         ->quality(85)
-                         ->save($fullPath.'/'.$name);
+                        ->width(1920)
+                        ->quality(85)
+                        ->save($fullPath.'/'.$name);
 
                     $this->info($file.' full created');
                 } catch (Exception $e) {
@@ -79,9 +79,6 @@ class PartymeisterFrontendCachePhotowallCommand extends Command
         }
     }
 
-    /**
-     * @param $directory
-     */
     protected function mkdir($directory)
     {
         if (! is_dir($directory)) {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Motor\Admin\Models\User;
 use Partymeister\Competitions\Models\AccessKey;
 use Partymeister\Core\Models\Visitor;
@@ -11,18 +12,18 @@ pest()->group('V2', 'ProfileAuth');
 function makeVisitor(string $name = 'TestUser', string $password = 'secret'): Visitor
 {
     $visitor = Visitor::create([
-        'name'               => $name,
-        'password'           => bcrypt($password),
-        'api_token'          => Str::random(60),
-        'group'              => '',
+        'name' => $name,
+        'password' => bcrypt($password),
+        'api_token' => Str::random(60),
+        'group' => '',
         'country_iso_3166_1' => 'DE',
-        'additional_data'    => [],
+        'additional_data' => [],
     ]);
 
     return $visitor;
 }
 
-function asVisitor(Visitor $visitor): \Illuminate\Testing\TestResponse
+function asVisitor(Visitor $visitor): TestResponse
 {
     // Just return the token — callers will use withHeader themselves.
     // This helper creates a Sanctum token for the visitor.
@@ -43,7 +44,7 @@ beforeEach(function () {
         $role = Role::firstOrCreate(['name' => 'SuperAdmin', 'guard_name' => 'web']);
         $user = User::factory()->create([
             'email' => 'admin@motor-cms.com',
-            'name'  => 'Admin',
+            'name' => 'Admin',
         ]);
         $user->assignRole($role);
     }
@@ -62,10 +63,10 @@ describe('V2 Profile Register', function () {
         ]);
 
         $response = $this->postJson('/api/v2/profile/register', [
-            'name'                => 'NewUser',
-            'password'            => 'secret123',
-            'access_key'          => 'TEST-KEY1',
-            'country_iso_3166_1'  => 'DE',
+            'name' => 'NewUser',
+            'password' => 'secret123',
+            'access_key' => 'TEST-KEY1',
+            'country_iso_3166_1' => 'DE',
         ]);
 
         $response->assertStatus(201);
@@ -76,8 +77,8 @@ describe('V2 Profile Register', function () {
 
     it('rejects registration with invalid access key', function () {
         $response = $this->postJson('/api/v2/profile/register', [
-            'name'       => 'NewUser',
-            'password'   => 'secret123',
+            'name' => 'NewUser',
+            'password' => 'secret123',
             'access_key' => 'INVALID-KEY',
         ]);
 
@@ -89,16 +90,16 @@ describe('V2 Profile Register', function () {
     it('rejects registration with already used access key', function () {
         $visitor = makeVisitor('ExistingUser');
         $accessKey = AccessKey::create([
-            'access_key'  => 'USED-KEY1',
-            'ip_address'  => '127.0.0.1',
-            'visitor_id'  => $visitor->id,
+            'access_key' => 'USED-KEY1',
+            'ip_address' => '127.0.0.1',
+            'visitor_id' => $visitor->id,
             'registered_at' => now(),
         ]);
 
         $response = $this->postJson('/api/v2/profile/register', [
-            'name'               => 'NewUser',
-            'password'           => 'secret123',
-            'access_key'         => 'USED-KEY1',
+            'name' => 'NewUser',
+            'password' => 'secret123',
+            'access_key' => 'USED-KEY1',
             'country_iso_3166_1' => 'DE',
         ]);
 
@@ -115,9 +116,9 @@ describe('V2 Profile Register', function () {
         ]);
 
         $response = $this->postJson('/api/v2/profile/register', [
-            'name'               => 'TakenUser',
-            'password'           => 'secret123',
-            'access_key'         => 'FREE-KEY1',
+            'name' => 'TakenUser',
+            'password' => 'secret123',
+            'access_key' => 'FREE-KEY1',
             'country_iso_3166_1' => 'DE',
         ]);
 
@@ -130,8 +131,8 @@ describe('V2 Profile Register', function () {
         config()->set('partymeister-core.visitor_registration_enabled', false);
 
         $response = $this->postJson('/api/v2/profile/register', [
-            'name'       => 'NewUser',
-            'password'   => 'secret123',
+            'name' => 'NewUser',
+            'password' => 'secret123',
             'access_key' => 'SOME-KEY',
         ]);
 
@@ -158,7 +159,7 @@ describe('V2 Profile Login', function () {
         makeVisitor('LoginUser', 'mypassword');
 
         $response = $this->postJson('/api/v2/profile/login', [
-            'name'     => 'LoginUser',
+            'name' => 'LoginUser',
             'password' => 'mypassword',
         ]);
 
@@ -173,7 +174,7 @@ describe('V2 Profile Login', function () {
         makeVisitor('LoginUser2', 'correctpassword');
 
         $response = $this->postJson('/api/v2/profile/login', [
-            'name'     => 'LoginUser2',
+            'name' => 'LoginUser2',
             'password' => 'wrongpassword',
         ]);
 
@@ -186,7 +187,7 @@ describe('V2 Profile Login', function () {
         config()->set('partymeister-core.visitor_login_enabled', false);
 
         $response = $this->postJson('/api/v2/profile/login', [
-            'name'     => 'Anyone',
+            'name' => 'Anyone',
             'password' => 'anything',
         ]);
 
@@ -214,7 +215,7 @@ describe('V2 Profile Authenticated', function () {
         $token = visitorToken($visitor);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-                         ->getJson('/api/v2/profile');
+            ->getJson('/api/v2/profile');
 
         $response->assertOk();
         assertV2ResponseEnvelope($response);
@@ -226,7 +227,7 @@ describe('V2 Profile Authenticated', function () {
         $token = visitorToken($visitor);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-                         ->postJson('/api/v2/profile/logout');
+            ->postJson('/api/v2/profile/logout');
 
         $response->assertNoContent();
     });
@@ -237,7 +238,7 @@ describe('V2 Profile Authenticated', function () {
         $visitorId = $visitor->id;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-                         ->deleteJson('/api/v2/profile');
+            ->deleteJson('/api/v2/profile');
 
         $response->assertNoContent();
         expect(Visitor::find($visitorId))->toBeNull();

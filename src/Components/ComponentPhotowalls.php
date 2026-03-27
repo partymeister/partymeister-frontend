@@ -18,30 +18,16 @@ class ComponentPhotowalls
      */
     protected $pageVersionComponent;
 
-    /**
-     * @var
-     */
     protected $photos;
 
-    /**
-     * @var
-     */
     protected $pages;
 
-    /**
-     * @var
-     */
     protected $currentPage;
 
-    /**
-     * @var
-     */
     protected $currentBlock;
 
     /**
      * ComponentPhotowalls constructor.
-     *
-     * @param  PageVersionComponent  $pageVersionComponent
      */
     public function __construct(PageVersionComponent $pageVersionComponent)
     {
@@ -49,7 +35,6 @@ class ComponentPhotowalls
     }
 
     /**
-     * @param  Request  $request
      * @return bool|Factory|View
      */
     public function index(Request $request)
@@ -60,6 +45,7 @@ class ComponentPhotowalls
             $this->photos = [];
             $this->pages = 0;
             $this->currentPage = 1;
+
             return $this->render();
         }
 
@@ -74,9 +60,9 @@ class ComponentPhotowalls
             $this->currentBlock = $this->photos[0];
         }
 
-        //$dates = array();
-        //foreach ($current_block as $key => $photo)
-        //{
+        // $dates = array();
+        // foreach ($current_block as $key => $photo)
+        // {
         //    $found = FALSE;
         //    foreach ($metadata as $wurst)
         //    {
@@ -89,7 +75,7 @@ class ComponentPhotowalls
         //            $dates[$key] = trim(trim($blah[0]));
         //        }
         //    }
-        //}
+        // }
 
         $this->pages = count($this->photos);
         $this->currentPage = $page + 1;
@@ -99,7 +85,6 @@ class ComponentPhotowalls
     }
 
     /**
-     * @param $dir
      * @return array|bool
      */
     protected function scanDir($dir)
@@ -137,10 +122,10 @@ class ComponentPhotowalls
     public function render()
     {
         return view(config('motor-cms-page-components.components.'.$this->pageVersionComponent->component_name.'.view'), [
-            'pages'        => $this->pages,
-            'currentPage'  => $this->currentPage,
+            'pages' => $this->pages,
+            'currentPage' => $this->currentPage,
             'currentBlock' => $this->currentBlock,
-            'photos'       => $this->photos,
+            'photos' => $this->photos,
         ]);
     }
 }

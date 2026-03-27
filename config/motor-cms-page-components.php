@@ -1,24 +1,24 @@
 <?php
 
 return [
-    'groups'     => [
+    'groups' => [
         'partymeister-frontend' => [
             'name' => 'Partymeister frontend',
         ],
     ],
     'components' => [
         'photowalls' => [
-            'name'            => 'Photowall',
-            'description'     => 'Show Photowall component',
-            'view'            => 'partymeister-frontend::frontend.components.photowalls-tw',
+            'name' => 'Photowall',
+            'description' => 'Show Photowall component',
+            'view' => 'partymeister-frontend::frontend.components.photowalls-tw',
             'component_class' => 'Partymeister\Frontend\Components\ComponentPhotowalls',
-            'compatibility'   => [
+            'compatibility' => [
 
             ],
-            'permissions'     => [
+            'permissions' => [
 
             ],
-            'group'           => 'partymeister-frontend',
+            'group' => 'partymeister-frontend',
         ],
     ],
 ];

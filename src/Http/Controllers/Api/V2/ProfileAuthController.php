@@ -53,7 +53,7 @@ class ProfileAuthController extends ApiController
             return $this->errorResponse('VALIDATION_ERROR', 'Access key invalid', 422);
         }
 
-        $visitor = new Visitor();
+        $visitor = new Visitor;
         $visitor->name = $request->get('name');
         $visitor->password = bcrypt($request->get('password'));
         $visitor->group = $request->get('group', '');

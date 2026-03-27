@@ -3,6 +3,7 @@
 namespace Partymeister\Frontend\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Motor\CMS\Models\Navigation;
 
 /**
  * Class PartymeisterFrontendDatabaseSeeder
@@ -16,6 +17,6 @@ class PartymeisterFrontendNavigationsTableSeeder extends Seeder
      */
     public function run()
     {
-        \Motor\CMS\Models\Navigation::create(json_decode(file_get_contents(__DIR__.'/navigation/navigation_main.json'), true));
+        Navigation::create(json_decode(file_get_contents(__DIR__.'/navigation/navigation_main.json'), true));
     }
 }
