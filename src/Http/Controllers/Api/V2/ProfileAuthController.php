@@ -31,7 +31,7 @@ class ProfileAuthController extends ApiController
         $token = $visitor->createToken('mobile-app')->plainTextToken;
 
         return (new VisitorResource($visitor))
-            ->additional(['meta' => ['message' => 'Login successful', 'token' => $token]])
+            ->additional(['meta' => ['api_version' => 'v2', 'message' => 'Login successful', 'token' => $token]])
             ->response();
     }
 
@@ -57,7 +57,8 @@ class ProfileAuthController extends ApiController
         $visitor->name = $request->get('name');
         $visitor->password = bcrypt($request->get('password'));
         $visitor->group = $request->get('group', '');
-        $visitor->country_iso_3166_1 = $request->get('country_iso_3166_1');
+        $visitor->country_iso_3166_1 = $request->get('country_iso_3166_1', '');
+        $visitor->additional_data = [];
         $visitor->api_token = Str::random(60);
         $visitor->save();
 
@@ -69,7 +70,7 @@ class ProfileAuthController extends ApiController
         $token = $visitor->createToken('mobile-app')->plainTextToken;
 
         return (new VisitorResource($visitor))
-            ->additional(['meta' => ['message' => 'Registration successful', 'token' => $token]])
+            ->additional(['meta' => ['api_version' => 'v2', 'message' => 'Registration successful', 'token' => $token]])
             ->response()
             ->setStatusCode(201);
     }
@@ -86,7 +87,7 @@ class ProfileAuthController extends ApiController
         $visitor = $request->user('visitor');
 
         return (new VisitorResource($visitor))
-            ->additional(['meta' => ['message' => 'Profile loaded']])
+            ->additional(['meta' => ['api_version' => 'v2', 'message' => 'Profile loaded']])
             ->response();
     }
 
