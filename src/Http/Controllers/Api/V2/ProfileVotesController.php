@@ -6,17 +6,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Motor\Admin\Http\Controllers\Controller;
+use Motor\Core\Http\Controllers\Api\V2\ApiController;
 use Partymeister\Competitions\Http\Resources\Vote\EntryResource as VoteEntryResource;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
 use Partymeister\Competitions\Services\VoteService;
+use Partymeister\Frontend\Http\Requests\Api\V2\VotePostRequest;
 
-class ProfileVotesController extends Controller
+class ProfileVotesController extends ApiController
 {
-    /**
-     * Get live voting entries for the authenticated visitor.
-     */
     public function live(Request $request): JsonResponse|Response
     {
         $liveVote = LiveVote::first();
@@ -29,28 +27,26 @@ class ProfileVotesController extends Controller
             return response()->noContent();
         }
 
-        // Allow live voting to stay open for 5 minutes after competition update
         if ($competition->voting_enabled && strtotime($competition->updated_at) <= time() - 300) {
             return response()->noContent();
         }
 
-        $entries = $liveVote->competition->entries()
+        $entries = $competition->entries()
             ->where('status', 1)
             ->where('sort_position', '<=', $liveVote->sort_position)
             ->orderBy('sort_position', 'DESC')
+            ->with('competition.vote_categories', 'competition.competition_type')
             ->get();
 
         return response()->json([
-            'data'    => VoteEntryResource::collection($entries->load('competition'))
-                                          ->toArrayRecursive(),
-            'status'  => 200,
-            'message' => 'Livevotes loaded',
+            'data' => VoteEntryResource::collection($entries),
+            'meta' => [
+                'api_version' => 'v2',
+                'message' => 'Live votes loaded',
+            ],
         ]);
     }
 
-    /**
-     * Get voteable entries for the authenticated visitor.
-     */
     public function entries(Request $request): JsonResponse
     {
         $query = DB::table('entries')
@@ -69,48 +65,49 @@ class ProfileVotesController extends Controller
         $entryIds = $query->get()->pluck('id');
 
         $entries = Entry::whereIn('id', $entryIds)
+            ->with('competition.vote_categories', 'competition.competition_type')
             ->orderBy('competition_id', 'ASC')
             ->orderBy('sort_position', 'ASC')
             ->get();
 
         return response()->json([
-            'status'  => 200,
-            'message' => 'Votes loaded',
-            'data'    => VoteEntryResource::collection($entries),
+            'data' => VoteEntryResource::collection($entries),
+            'meta' => [
+                'api_version' => 'v2',
+                'message' => 'Voteable entries loaded',
+            ],
         ]);
     }
 
-    /**
-     * Submit a vote for an entry.
-     */
-    public function vote(Request $request, Entry $entry): JsonResponse
+    public function vote(VotePostRequest $request, Entry $entry): JsonResponse
     {
         $visitor = $request->user('visitor');
-
-        $request->validate([
-            'vote_category_id' => 'required|integer',
-            'points' => 'integer',
-        ]);
 
         $result = VoteService::submitVote(
             visitor: $visitor,
             entryId: $entry->id,
-            voteCategoryId: $request->get('vote_category_id'),
-            points: (int) $request->get('points', 0),
-            comment: $request->get('comment', ''),
-            specialVote: $request->has('special_vote') ? (bool) $request->get('special_vote') : null,
-            isLive: (bool) $request->get('live', false),
+            voteCategoryId: $request->validated('vote_category_id'),
+            points: (int) $request->validated('points', 0),
+            comment: $request->validated('comment', ''),
+            specialVote: $request->has('special_vote') ? (bool) $request->validated('special_vote') : null,
+            isLive: (bool) $request->validated('live', false),
             ipAddress: $request->ip(),
         );
 
-        $status = $result['status'] ?? ($result['success'] ? 200 : 400);
-        unset($result['status']);
-
-        // Include 'error' key for frontend JS compatibility
         if (! $result['success']) {
-            $result['error'] = true;
+            $status = $result['status'] ?? 400;
+            return $this->errorResponse('VOTE_FAILED', $result['message'], $status);
         }
 
-        return response()->json($result, $status);
+        return response()->json([
+            'data' => [
+                'success' => true,
+                'message' => $result['message'],
+            ],
+            'meta' => [
+                'api_version' => 'v2',
+                'message' => $result['message'],
+            ],
+        ]);
     }
 }

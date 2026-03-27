@@ -8,7 +8,7 @@ use Partymeister\Frontend\Http\Middleware\EnsureVisitorAuthenticated;
 
 // V2: Sanctum-authenticated routes (SPA cookies for web, Bearer tokens for apps)
 Route::group([
-    'middleware' => [EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', 'bindings', EnsureVisitorAuthenticated::class],
+    'middleware' => [\Motor\Core\Http\Middleware\V2\V2ErrorHandler::class, EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', 'bindings', EnsureVisitorAuthenticated::class],
     'prefix'     => 'api/v2',
     'as'         => 'api.v2.',
 ], function () {
@@ -31,7 +31,7 @@ Route::group([
 
 // V2: Public auth routes (no auth required, throttled)
 Route::group([
-    'middleware' => [EnsureFrontendRequestsAreStateful::class],
+    'middleware' => [\Motor\Core\Http\Middleware\V2\V2ErrorHandler::class, EnsureFrontendRequestsAreStateful::class],
     'prefix'     => 'api/v2',
     'as'         => 'api.v2.',
 ], function () {

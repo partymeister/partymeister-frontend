@@ -4,112 +4,60 @@ namespace Partymeister\Frontend\Http\Controllers\Api\V2;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Motor\Admin\Http\Controllers\Controller;
+use Motor\Core\Http\Controllers\Api\V2\ApiController;
 use Partymeister\Competitions\Models\AccessKey;
 use Partymeister\Core\Http\Resources\Profile\VisitorResource;
 use Partymeister\Core\Models\Visitor;
+use Partymeister\Frontend\Http\Requests\Api\V2\LoginPostRequest;
+use Partymeister\Frontend\Http\Requests\Api\V2\RegisterPostRequest;
 
-class ProfileAuthController extends Controller
+class ProfileAuthController extends ApiController
 {
-    /**
-     * Login and return a Sanctum personal access token.
-     */
-    public function login(Request $request): JsonResponse
+    public function login(LoginPostRequest $request): JsonResponse
     {
         if (! config('partymeister-core.visitor_login_enabled', false)) {
-            return response()->json([
-                'status'  => 503,
-                'message' => 'Login is currently disabled',
-            ], 503);
+            return $this->errorResponse('SERVICE_UNAVAILABLE', 'Login is currently disabled', 503);
         }
 
-        $name = $request->get('name');
-        $password = $request->get('password');
-
-        if (is_null($name) || is_null($password)) {
-            return response()->json([
-                'status'  => 403,
-                'message' => 'Login or password not supplied',
-            ], 403);
+        if (! Auth::guard('visitor')->attempt($request->only('name', 'password'))) {
+            return $this->errorResponse('UNAUTHORIZED', 'Login unsuccessful', 401);
         }
 
-        if (! Auth::guard('visitor')->attempt(['name' => $name, 'password' => $password])) {
-            return response()->json([
-                'status'  => 403,
-                'message' => 'Login unsuccessful',
-            ], 403);
-        }
-
-        $visitor = Visitor::where('name', $name)->first();
-
-        // Revoke any existing tokens for this visitor
+        $visitor = Visitor::where('name', $request->get('name'))->first();
         $visitor->tokens()->delete();
-
-        // Create a new Sanctum personal access token
         $token = $visitor->createToken('mobile-app')->plainTextToken;
 
-        $data = (new VisitorResource($visitor))->toArrayRecursive();
-
-        return response()->json([
-            'status'  => 200,
-            'message' => 'Login successful',
-            'data'    => $data,
-            'token'   => $token,
-        ], 200);
+        return (new VisitorResource($visitor))
+            ->additional(['meta' => ['message' => 'Login successful', 'token' => $token]])
+            ->response();
     }
 
-    /**
-     * Register a new visitor and return a Sanctum personal access token.
-     */
-    public function register(Request $request): JsonResponse
+    public function register(RegisterPostRequest $request): JsonResponse
     {
         if (! config('partymeister-core.visitor_registration_enabled', false)) {
-            return response()->json([
-                'status'  => 503,
-                'message' => 'Registration is currently disabled',
-            ], 503);
+            return $this->errorResponse('SERVICE_UNAVAILABLE', 'Registration is currently disabled', 503);
         }
 
-        $name = $request->get('name');
-        $group = $request->get('group', '');
-        $country = $request->get('country_iso_3166_1');
-        $password = $request->get('password');
-        $access_key = $request->get('access_key');
-
-        if (is_null($name) || is_null($password) || is_null($access_key)) {
-            return response()->json([
-                'status'  => 403,
-                'message' => 'Login, password or access key missing',
-            ], 403);
+        if (Visitor::where('name', $request->get('name'))->exists()) {
+            return $this->errorResponse('CONFLICT', 'Profile already registered', 409);
         }
 
-        $visitor = Visitor::where('name', $name)->first();
-
-        if (! is_null($visitor)) {
-            return response()->json([
-                'status'  => 403,
-                'message' => 'Profile already registered',
-            ], 403);
-        }
-
-        $accessKey = AccessKey::where('access_key', $access_key)
-            ->where('visitor_id', null)
+        $accessKey = AccessKey::where('access_key', $request->get('access_key'))
+            ->whereNull('visitor_id')
             ->first();
 
         if (is_null($accessKey)) {
-            return response()->json([
-                'status'  => 403,
-                'message' => 'Access key invalid',
-            ], 403);
+            return $this->errorResponse('VALIDATION_ERROR', 'Access key invalid', 422);
         }
 
         $visitor = new Visitor();
-        $visitor->name = $name;
-        $visitor->password = bcrypt($password);
-        $visitor->group = $group;
-        $visitor->country_iso_3166_1 = $country;
+        $visitor->name = $request->get('name');
+        $visitor->password = bcrypt($request->get('password'));
+        $visitor->group = $request->get('group', '');
+        $visitor->country_iso_3166_1 = $request->get('country_iso_3166_1');
         $visitor->api_token = Str::random(60);
         $visitor->save();
 
@@ -118,59 +66,36 @@ class ProfileAuthController extends Controller
         $accessKey->ip_address = $request->ip();
         $accessKey->save();
 
-        // Create a Sanctum personal access token
         $token = $visitor->createToken('mobile-app')->plainTextToken;
 
-        $data = (new VisitorResource($visitor))->toArrayRecursive();
-
-        return response()->json([
-            'status'  => 200,
-            'message' => 'Registration successful',
-            'data'    => $data,
-            'token'   => $token,
-        ], 200);
+        return (new VisitorResource($visitor))
+            ->additional(['meta' => ['message' => 'Registration successful', 'token' => $token]])
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Revoke the current token (logout).
-     */
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request): Response
     {
         $request->user('visitor')->currentAccessToken()->delete();
 
-        return response()->json([
-            'status'  => 200,
-            'message' => 'Logged out',
-        ], 200);
+        return response()->noContent();
     }
 
-    /**
-     * Get the authenticated visitor's profile.
-     */
     public function show(Request $request): JsonResponse
     {
         $visitor = $request->user('visitor');
-        $data = (new VisitorResource($visitor))->toArrayRecursive();
 
-        return response()->json([
-            'status'  => 200,
-            'message' => 'Profile loaded',
-            'data'    => $data,
-        ], 200);
+        return (new VisitorResource($visitor))
+            ->additional(['meta' => ['message' => 'Profile loaded']])
+            ->response();
     }
 
-    /**
-     * Delete the authenticated visitor's profile.
-     */
-    public function destroy(Request $request): JsonResponse
+    public function destroy(Request $request): Response
     {
         $visitor = $request->user('visitor');
         $visitor->tokens()->delete();
         $visitor->delete();
 
-        return response()->json([
-            'status'  => 200,
-            'message' => 'Profile deleted',
-        ], 200);
+        return response()->noContent();
     }
 }

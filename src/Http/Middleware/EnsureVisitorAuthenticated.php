@@ -23,8 +23,13 @@ class EnsureVisitorAuthenticated
 
         if (is_null($visitor) || ! $visitor instanceof Visitor) {
             return response()->json([
-                'status'  => 401,
-                'message' => 'Visitor authentication required',
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                    'message' => 'Visitor authentication required',
+                ],
+                'meta' => [
+                    'api_version' => 'v2',
+                ],
             ], 401);
         }
 
