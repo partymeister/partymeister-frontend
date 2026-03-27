@@ -15,8 +15,12 @@ use Partymeister\Frontend\Http\Requests\Api\V2\LoginPostRequest;
 use Partymeister\Frontend\Http\Requests\Api\V2\RegisterPostRequest;
 use Partymeister\Frontend\Http\Resources\V2\VisitorResource;
 
+/**
+ * @tags Visitor Profile
+ */
 class ProfileAuthController extends ApiController
 {
+    /** @response VisitorResource */
     public function login(LoginPostRequest $request): JsonResponse
     {
         if (! config('partymeister-core.visitor_login_enabled', false)) {
@@ -36,6 +40,7 @@ class ProfileAuthController extends ApiController
             ->response();
     }
 
+    /** @response 201 VisitorResource */
     public function register(RegisterPostRequest $request): JsonResponse
     {
         if (! config('partymeister-core.visitor_registration_enabled', false)) {
@@ -76,6 +81,7 @@ class ProfileAuthController extends ApiController
             ->setStatusCode(201);
     }
 
+    /** @response 204 */
     public function logout(Request $request): Response
     {
         $request->user('visitor')->currentAccessToken()->delete();
@@ -83,6 +89,7 @@ class ProfileAuthController extends ApiController
         return response()->noContent();
     }
 
+    /** @response VisitorResource */
     public function show(Request $request): JsonResponse
     {
         $visitor = $request->user('visitor');
@@ -92,6 +99,7 @@ class ProfileAuthController extends ApiController
             ->response();
     }
 
+    /** @response 204 */
     public function destroy(Request $request): Response
     {
         $visitor = $request->user('visitor');

@@ -16,8 +16,12 @@ use Partymeister\Frontend\Http\Requests\Api\V2\VotePostRequest;
 use Partymeister\Frontend\Http\Resources\V2\VoteEntryCollection;
 use Partymeister\Frontend\Http\Resources\V2\VoteEntryResource;
 
+/**
+ * @tags Visitor Voting
+ */
 class ProfileVotesController extends ApiController
 {
+    /** @response VoteEntryCollection */
     public function live(Request $request): JsonResponse|Response
     {
         $liveVote = LiveVote::first();
@@ -48,6 +52,7 @@ class ProfileVotesController extends ApiController
             ->response();
     }
 
+    /** @response VoteEntryCollection */
     public function entries(Request $request): JsonResponse
     {
         $query = DB::table('entries')
@@ -78,6 +83,9 @@ class ProfileVotesController extends ApiController
             ->response();
     }
 
+    /**
+     * @response array{data: array{success: bool, message: string}, meta: array{api_version: string, message: string}}
+     */
     public function vote(VotePostRequest $request, Entry $entry): JsonResponse
     {
         $visitor = $request->user('visitor');
