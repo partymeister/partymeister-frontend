@@ -5,13 +5,16 @@ namespace Partymeister\Frontend\Http\Controllers\Api\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Motor\Core\Http\Controllers\Api\V2\ApiController;
-use Partymeister\Competitions\Http\Resources\Vote\EntryResource as VoteEntryResource;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
+use Partymeister\Competitions\Models\Vote;
 use Partymeister\Competitions\Services\VoteService;
 use Partymeister\Frontend\Http\Requests\Api\V2\VotePostRequest;
+use Partymeister\Frontend\Http\Resources\V2\VoteEntryCollection;
+use Partymeister\Frontend\Http\Resources\V2\VoteEntryResource;
 
 class ProfileVotesController extends ApiController
 {
@@ -38,13 +41,11 @@ class ProfileVotesController extends ApiController
             ->with('competition.vote_categories', 'competition.competition_type')
             ->get();
 
-        return response()->json([
-            'data' => VoteEntryResource::collection($entries),
-            'meta' => [
-                'api_version' => 'v2',
-                'message' => 'Live votes loaded',
-            ],
-        ]);
+        $this->preloadVisitorVotes($entries, Auth::guard('visitor')->id());
+
+        return (new VoteEntryCollection($entries))
+            ->additional(['meta' => ['message' => 'Live votes loaded']])
+            ->response();
     }
 
     public function entries(Request $request): JsonResponse
@@ -70,13 +71,11 @@ class ProfileVotesController extends ApiController
             ->orderBy('sort_position', 'ASC')
             ->get();
 
-        return response()->json([
-            'data' => VoteEntryResource::collection($entries),
-            'meta' => [
-                'api_version' => 'v2',
-                'message' => 'Voteable entries loaded',
-            ],
-        ]);
+        $this->preloadVisitorVotes($entries, Auth::guard('visitor')->id());
+
+        return (new VoteEntryCollection($entries))
+            ->additional(['meta' => ['message' => 'Voteable entries loaded']])
+            ->response();
     }
 
     public function vote(VotePostRequest $request, Entry $entry): JsonResponse
@@ -110,5 +109,47 @@ class ProfileVotesController extends ApiController
                 'message' => $result['message'],
             ],
         ]);
+    }
+
+    /**
+     * Pre-load the visitor's votes for a collection of entries to avoid N+1 queries.
+     */
+    private function preloadVisitorVotes($entries, $visitorId): void
+    {
+        if ($entries->isEmpty() || is_null($visitorId)) {
+            VoteEntryResource::setVisitorVotes([]);
+
+            return;
+        }
+
+        // Collect the first vote_category_id per entry from its competition
+        $entryVoteCategoryMap = [];
+        foreach ($entries as $entry) {
+            if ($entry->competition && $entry->competition->vote_categories && $entry->competition->vote_categories->isNotEmpty()) {
+                $entryVoteCategoryMap[$entry->id] = $entry->competition->vote_categories[0]->id;
+            }
+        }
+
+        if (empty($entryVoteCategoryMap)) {
+            VoteEntryResource::setVisitorVotes([]);
+
+            return;
+        }
+
+        $votes = Vote::where('visitor_id', $visitorId)
+            ->whereIn('entry_id', array_keys($entryVoteCategoryMap))
+            ->get()
+            ->keyBy('entry_id');
+
+        // Filter to only include votes matching the expected vote_category_id
+        $filteredVotes = [];
+        foreach ($entryVoteCategoryMap as $entryId => $voteCategoryId) {
+            $vote = $votes->get($entryId);
+            if ($vote && $vote->vote_category_id == $voteCategoryId) {
+                $filteredVotes[$entryId] = $vote;
+            }
+        }
+
+        VoteEntryResource::setVisitorVotes($filteredVotes);
     }
 }

@@ -5,8 +5,8 @@ namespace Partymeister\Frontend\Http\Controllers\Api\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Motor\Core\Http\Controllers\Api\V2\ApiController;
-use Partymeister\Competitions\Http\Resources\Profile\EntryResource;
 use Partymeister\Competitions\Models\Entry;
+use Partymeister\Frontend\Http\Resources\V2\EntryCollection;
 
 class ProfileEntriesController extends ApiController
 {
@@ -17,12 +17,8 @@ class ProfileEntriesController extends ApiController
             ->with('competition.competition_type')
             ->get();
 
-        return response()->json([
-            'data' => EntryResource::collection($entries),
-            'meta' => [
-                'api_version' => 'v2',
-                'message' => 'Entries loaded',
-            ],
-        ]);
+        return (new EntryCollection($entries))
+            ->additional(['meta' => ['message' => 'Entries loaded']])
+            ->response();
     }
 }

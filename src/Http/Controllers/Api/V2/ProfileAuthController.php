@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Motor\Core\Http\Controllers\Api\V2\ApiController;
 use Partymeister\Competitions\Models\AccessKey;
-use Partymeister\Core\Http\Resources\Profile\VisitorResource;
 use Partymeister\Core\Models\Visitor;
 use Partymeister\Frontend\Http\Requests\Api\V2\LoginPostRequest;
 use Partymeister\Frontend\Http\Requests\Api\V2\RegisterPostRequest;
+use Partymeister\Frontend\Http\Resources\V2\VisitorResource;
 
 class ProfileAuthController extends ApiController
 {
