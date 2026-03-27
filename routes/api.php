@@ -11,7 +11,7 @@ use Partymeister\Frontend\Http\Middleware\EnsureVisitorAuthenticated;
 Route::group([
     'middleware' => [V2ErrorHandler::class, EnsureFrontendRequestsAreStateful::class, 'auth:sanctum', 'bindings', EnsureVisitorAuthenticated::class],
     'prefix' => 'api/v2',
-    'as' => 'api.v2.',
+    'as' => 'v2.',
 ], function () {
     Route::get('profile', [ProfileAuthController::class, 'show'])
         ->name('profile.show');
@@ -34,7 +34,7 @@ Route::group([
 Route::group([
     'middleware' => [V2ErrorHandler::class, EnsureFrontendRequestsAreStateful::class],
     'prefix' => 'api/v2',
-    'as' => 'api.v2.',
+    'as' => 'v2.',
 ], function () {
     Route::post('profile/login', [ProfileAuthController::class, 'login'])
         ->middleware('throttle:5,1')

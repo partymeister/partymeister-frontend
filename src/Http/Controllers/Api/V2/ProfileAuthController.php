@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Motor\Core\Http\Controllers\Api\V2\ApiController;
 use Partymeister\Competitions\Models\AccessKey;
@@ -55,7 +56,7 @@ class ProfileAuthController extends ApiController
 
         $visitor = new Visitor;
         $visitor->name = $request->get('name');
-        $visitor->password = bcrypt($request->get('password'));
+        $visitor->password = Hash::make($request->get('password'));
         $visitor->group = $request->get('group', '');
         $visitor->country_iso_3166_1 = $request->get('country_iso_3166_1', '');
         $visitor->additional_data = [];
@@ -63,7 +64,7 @@ class ProfileAuthController extends ApiController
         $visitor->save();
 
         $accessKey->visitor_id = $visitor->id;
-        $accessKey->registered_at = date('Y-m-d H:i:s');
+        $accessKey->registered_at = now();
         $accessKey->ip_address = $request->ip();
         $accessKey->save();
 
