@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Str;
 use Motor\Admin\Models\User;
 use Partymeister\Competitions\Models\Competition;
-use Partymeister\Competitions\Models\CompetitionType;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Core\Models\Visitor;
 use Spatie\Permission\Models\Role;
@@ -21,13 +19,9 @@ beforeEach(function () {
         $user->assignRole($role);
     }
 
-    $visitor = Visitor::create([
+    $visitor = Visitor::factory()->create([
         'name' => 'EntriesUser',
         'password' => bcrypt('secret'),
-        'api_token' => Str::random(60),
-        'group' => '',
-        'country_iso_3166_1' => 'DE',
-        'additional_data' => [],
     ]);
 
     $this->visitor = $visitor;
@@ -46,28 +40,13 @@ describe('V2 Profile Entries', function () {
     });
 
     it('can list visitor entries when entries exist', function () {
-        $competitionType = CompetitionType::create(['name' => 'Demo']);
-        $competition = Competition::create([
-            'name' => 'Test Compo',
-            'competition_type_id' => $competitionType->id,
-            'sort_position' => 1,
-            'prizegiving_sort_position' => 1,
-            'has_prizegiving' => false,
-            'upload_enabled' => false,
-            'voting_enabled' => false,
-        ]);
+        $competition = Competition::factory()->create(['name' => 'Test Compo']);
 
-        Entry::create([
+        Entry::factory()->create([
             'competition_id' => $competition->id,
             'visitor_id' => $this->visitor->id,
             'title' => 'My Demo',
             'author' => 'EntriesUser',
-            'description' => '',
-            'organizer_description' => '',
-            'custom_option' => '',
-            'sort_position' => 1,
-            'status' => 0,
-            'ip_address' => '127.0.0.1',
         ]);
 
         $response = $this->withHeader('Authorization', "Bearer {$this->token}")
@@ -79,37 +58,15 @@ describe('V2 Profile Entries', function () {
     });
 
     it('does not return entries belonging to other visitors', function () {
-        $otherVisitor = Visitor::create([
-            'name' => 'OtherUser',
-            'password' => bcrypt('secret'),
-            'api_token' => Str::random(60),
-            'group' => '',
-            'country_iso_3166_1' => 'DE',
-            'additional_data' => [],
-        ]);
+        $otherVisitor = Visitor::factory()->create(['name' => 'OtherUser']);
 
-        $competitionType = CompetitionType::create(['name' => 'Demo2']);
-        $competition = Competition::create([
-            'name' => 'Other Compo',
-            'competition_type_id' => $competitionType->id,
-            'sort_position' => 2,
-            'prizegiving_sort_position' => 2,
-            'has_prizegiving' => false,
-            'upload_enabled' => false,
-            'voting_enabled' => false,
-        ]);
+        $competition = Competition::factory()->create(['name' => 'Other Compo']);
 
-        Entry::create([
+        Entry::factory()->create([
             'competition_id' => $competition->id,
             'visitor_id' => $otherVisitor->id,
             'title' => 'Other Entry',
             'author' => 'OtherUser',
-            'description' => '',
-            'organizer_description' => '',
-            'custom_option' => '',
-            'sort_position' => 1,
-            'status' => 0,
-            'ip_address' => '127.0.0.1',
         ]);
 
         $response = $this->withHeader('Authorization', "Bearer {$this->token}")

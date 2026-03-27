@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Motor\Admin\Models\User;
 use Partymeister\Competitions\Models\AccessKey;
@@ -11,16 +10,10 @@ pest()->group('V2', 'ProfileAuth');
 
 function makeVisitor(string $name = 'TestUser', string $password = 'secret'): Visitor
 {
-    $visitor = Visitor::create([
+    return Visitor::factory()->create([
         'name' => $name,
         'password' => bcrypt($password),
-        'api_token' => Str::random(60),
-        'group' => '',
-        'country_iso_3166_1' => 'DE',
-        'additional_data' => [],
     ]);
-
-    return $visitor;
 }
 
 function asVisitor(Visitor $visitor): TestResponse
@@ -57,7 +50,7 @@ beforeEach(function () {
 describe('V2 Profile Register', function () {
 
     it('can register with valid access key', function () {
-        $accessKey = AccessKey::create([
+        $accessKey = AccessKey::factory()->create([
             'access_key' => 'TEST-KEY1',
             'ip_address' => '127.0.0.1',
         ]);
@@ -89,7 +82,7 @@ describe('V2 Profile Register', function () {
 
     it('rejects registration with already used access key', function () {
         $visitor = makeVisitor('ExistingUser');
-        $accessKey = AccessKey::create([
+        $accessKey = AccessKey::factory()->create([
             'access_key' => 'USED-KEY1',
             'ip_address' => '127.0.0.1',
             'visitor_id' => $visitor->id,
@@ -110,7 +103,7 @@ describe('V2 Profile Register', function () {
     it('rejects registration with duplicate name', function () {
         makeVisitor('TakenUser');
 
-        $accessKey = AccessKey::create([
+        $accessKey = AccessKey::factory()->create([
             'access_key' => 'FREE-KEY1',
             'ip_address' => '127.0.0.1',
         ]);

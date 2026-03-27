@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Str;
 use Motor\Admin\Models\User;
 use Partymeister\Competitions\Models\Competition;
-use Partymeister\Competitions\Models\CompetitionType;
 use Partymeister\Competitions\Models\Entry;
 use Partymeister\Competitions\Models\LiveVote;
 use Partymeister\Competitions\Models\Vote;
@@ -26,52 +24,33 @@ beforeEach(function () {
         $user->assignRole($role);
     }
 
-    $visitor = Visitor::create([
+    $visitor = Visitor::factory()->create([
         'name' => 'VoteUser',
         'password' => bcrypt('secret'),
-        'api_token' => Str::random(60),
-        'group' => '',
-        'country_iso_3166_1' => 'DE',
-        'additional_data' => [],
     ]);
 
     $this->visitor = $visitor;
     $this->token = $visitor->createToken('test')->plainTextToken;
 
     // Set up competition with voting enabled
-    $competitionType = CompetitionType::create(['name' => 'Demo']);
-
-    $competition = Competition::create([
+    $competition = Competition::factory()->create([
         'name' => 'Vote Compo',
-        'competition_type_id' => $competitionType->id,
-        'sort_position' => 1,
-        'prizegiving_sort_position' => 1,
-        'has_prizegiving' => false,
-        'upload_enabled' => false,
         'voting_enabled' => true,
     ]);
 
-    $voteCategory = VoteCategory::create([
+    $voteCategory = VoteCategory::factory()->create([
         'name' => 'Overall',
         'points' => 10,
-        'has_negative' => false,
-        'has_comment' => false,
-        'has_special_vote' => false,
     ]);
 
     // Attach vote category to competition
     $competition->vote_categories()->attach($voteCategory->id);
 
-    $entry = Entry::create([
+    $entry = Entry::factory()->create([
         'competition_id' => $competition->id,
         'title' => 'Awesome Demo',
         'author' => 'Demo Author',
-        'description' => '',
-        'organizer_description' => '',
-        'custom_option' => '',
-        'sort_position' => 1,
         'status' => 1, // qualified
-        'ip_address' => '127.0.0.1',
     ]);
 
     $this->competition = $competition;
