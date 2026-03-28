@@ -9,7 +9,7 @@ use Partymeister\Competitions\Models\Entry;
 use Partymeister\Frontend\Http\Resources\V2\EntryCollection;
 
 /**
- * @tags Visitor Profile
+ * @tags Frontend: Visitor Profile
  */
 class ProfileEntriesController extends ApiController
 {

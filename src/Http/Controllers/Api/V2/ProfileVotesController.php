@@ -17,7 +17,7 @@ use Partymeister\Frontend\Http\Resources\V2\VoteEntryCollection;
 use Partymeister\Frontend\Http\Resources\V2\VoteEntryResource;
 
 /**
- * @tags Visitor Voting
+ * @tags Frontend: Visitor Voting
  */
 class ProfileVotesController extends ApiController
 {

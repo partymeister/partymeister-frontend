@@ -16,7 +16,7 @@ use Partymeister\Frontend\Http\Requests\Api\V2\RegisterPostRequest;
 use Partymeister\Frontend\Http\Resources\V2\VisitorResource;
 
 /**
- * @tags Visitor Profile
+ * @tags Frontend: Visitor Profile
  */
 class ProfileAuthController extends ApiController
 {
