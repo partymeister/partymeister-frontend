@@ -21,14 +21,9 @@ class PartymeisterServiceProvider extends ServiceProvider
         $this->routes();
         $this->routeModelBindings();
         $this->translations();
-        $this->views();
-        $this->navigationItems();
-        $this->permissions();
         $this->registerCommands();
         $this->migrations();
         $this->publishResourceAssets();
-        $this->components();
-        $this->templates();
         merge_local_config_with_db_configuration_variables('partymeister-frontend');
     }
 
@@ -43,7 +38,6 @@ class PartymeisterServiceProvider extends ServiceProvider
     public function routes()
     {
         if (! $this->app->routesAreCached()) {
-            require __DIR__.'/../../routes/web.php';
             require __DIR__.'/../../routes/api.php';
         }
     }
@@ -64,28 +58,6 @@ class PartymeisterServiceProvider extends ServiceProvider
             __DIR__.'/../../lang' => resource_path('lang/vendor/partymeister-frontend'),
         ], 'partymeister-frontend-translations');
     }
-
-    /**
-     * Set view path
-     */
-    public function views()
-    {
-        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'partymeister-frontend');
-
-        $this->publishes([
-            __DIR__.'/../../resources/views' => resource_path('views/vendor/partymeister-frontend'),
-        ], 'partymeister-frontend-views');
-    }
-
-    /**
-     * Merge backend navigation items from configuration file
-     */
-    public function navigationItems() {}
-
-    /**
-     * Merge permission config file
-     */
-    public function permissions() {}
 
     /**
      * Register artisan commands
@@ -119,23 +91,5 @@ class PartymeisterServiceProvider extends ServiceProvider
         ];
 
         $this->publishes($assets, 'partymeister-frontend-install-resources');
-    }
-
-    /**
-     * Register components from config file
-     */
-    public function components()
-    {
-        $config = $this->app['config']->get('motor-cms-page-components', []);
-        $this->app['config']->set('motor-cms-page-components', array_replace_recursive(require __DIR__.'/../../config/motor-cms-page-components.php', $config));
-    }
-
-    /**
-     * Register templates from config file
-     */
-    public function templates()
-    {
-        $config = $this->app['config']->get('motor-cms-page-templates', []);
-        $this->app['config']->set('motor-cms-page-templates', array_replace_recursive(require __DIR__.'/../../config/motor-cms-page-templates.php', $config));
     }
 }
